@@ -28,6 +28,7 @@ pub fn verify_checksums(
     checksum_file: &str,
     files: &[String],
     hash_type: Option<HashType>,
+    bsd: bool,
 ) -> Result<()> {
     // TODO: implement this
     // 1. read file from disk
@@ -36,7 +37,7 @@ pub fn verify_checksums(
     // 4. split each line into vec & verify number of parts (2)
     // 5. pass to another verification function that calls computes_hashes
     // and returns a book if there is a match
-    println!("{checksum_file} {files:?} {hash_type:?}");
+    println!("{checksum_file} {files:?} {hash_type:?} {bsd}");
 
     Err(anyhow!("[ERR] verify_checksums yet to be implemented"))
 }

@@ -19,7 +19,8 @@ fn main() -> Result<()> {
             checksum_file,
             hash_type,
             files,
-        } => hash::verify_checksums(&checksum_file, &files, hash_type)?,
+            bsd,
+        } => hash::verify_checksums(&checksum_file, &files, hash_type, bsd)?,
     }
 
     Ok(())

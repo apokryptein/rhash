@@ -28,6 +28,10 @@ pub enum Command {
         #[arg(long, short)]
         checksum_file: String,
 
+        /// Checksum file is in BSD format
+        #[arg(long, action)]
+        bsd: bool,
+
         /// Hash algorithm used in checksum file
         #[arg(long, short = 't', value_enum)]
         hash_type: Option<HashType>,
