@@ -1,30 +1,26 @@
+use anyhow::Result;
 use clap::Parser;
 use cli::{Args, HashType};
 
 mod cli;
 mod hash;
 
-fn main() {
+fn main() -> Result<()> {
+    // Parse args
     let args = Args::parse();
 
-    if let Some(checksum_file) = &args.check {
-        verify_checksums(checksum_file, &args.files);
-    } else if let Some(hash_type) = args.hash_type {
-        compute_hashes(hash_type, &args.files);
-    } else {
-        eprintln!("Specify either --hash-type <TYPE> or --check <FILE>");
+    // Match on provided command and pass to appropriate function
+    match args.command {
+        cli::Command::Hash { hash_type, files } => {
+            let hash_type = hash_type.unwrap_or(HashType::Sha256);
+            hash::compute_hashes(&files, &hash_type)?
+        }
+        cli::Command::Verify {
+            checksum_file,
+            hash_type,
+            files,
+        } => hash::verify_checksums(&checksum_file, &files, hash_type)?,
     }
-}
 
-fn verify_checksums(checksum_file: &str, files: &[String]) {
-    // TODO: implement this
-    println!("{checksum_file} {files:?}");
-}
-
-// handler to check HashType and route to appropriate hashing function
-fn compute_hashes(hash_type: HashType, files: &[String]) {
-    for file in files {
-        let hash = hash::compute_hash(file, &hash_type);
-        println!("{hash}  {file}");
-    }
+    Ok(())
 }
