@@ -11,6 +11,8 @@ pub struct Args {
     pub command: Command,
 }
 
+/// Command is an enum for available rhash commands:
+/// Hash, Verify
 #[derive(Subcommand)]
 pub enum Command {
     /// Hash computes the hash(s) of the provided file(s)
@@ -34,7 +36,7 @@ pub enum Command {
 
         /// Hash algorithm used in checksum file
         #[arg(long, short = 't', value_enum)]
-        hash_type: Option<HashType>,
+        hash_type: HashType,
 
         /// Files to verify
         files: Vec<String>,
