@@ -41,6 +41,8 @@ pub fn verify_checksums(
     hash_type: HashType,
     bsd: bool,
 ) -> Result<()> {
+    // TODO: implement BSD checksum format verification
+
     // BSD formatting no yet supported
     if bsd {
         return Err(anyhow!(
@@ -178,6 +180,9 @@ fn verify_file(filename: &str, expected_hash: &str, hash_type: &HashType) -> Res
     // Compare and return match case
     Ok(computed.eq_ignore_ascii_case(expected_hash))
 }
+
+// TODO: update hashing functions to use streaming instead of reading entire
+// file into memory
 
 /// compute_md5 computes the md5 hash of a given file
 fn compute_md5(file: &str) -> Result<String> {
