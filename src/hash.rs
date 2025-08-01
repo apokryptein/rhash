@@ -1,11 +1,10 @@
 use crate::cli::HashType;
 use anyhow::{Context, Result, anyhow, bail};
 use blake2::{Blake2b512, Blake2s256, Digest};
-use blake3::Hasher;
 use sha2::{Sha256, Sha512};
 use std::collections::HashSet;
-use std::fs;
 use std::fs::File;
+use std::io;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 
@@ -181,55 +180,86 @@ fn verify_file(filename: &str, expected_hash: &str, hash_type: &HashType) -> Res
     Ok(computed.eq_ignore_ascii_case(expected_hash))
 }
 
-// TODO: update hashing functions to use streaming instead of reading entire
-// file into memory
-
 /// compute_md5 computes the md5 hash of a given file
 fn compute_md5(file: &str) -> Result<String> {
-    let file_data = fs::read(file).with_context(|| anyhow!("[ERR] failed to open file: {file}"))?;
-    let digest = md5::compute(file_data);
+    // Open file
+    let mut file_handle =
+        File::open(file).with_context(|| anyhow!("[ERR] failed to open file: {file}"))?;
 
-    Ok(format!("{digest:x}"))
+    // Instantiate MD5 hasher & stream from file to hasher
+    let mut hasher = md5::Md5::new();
+    io::copy(&mut file_handle, &mut hasher)
+        .with_context(|| anyhow!("[ERR] failed to read file: {file}"))?;
+
+    Ok(format!("{:x}", hasher.finalize()))
 }
 
 /// compute_sha256 computes the sha256 hash of a given file
 fn compute_sha256(file: &str) -> Result<String> {
-    let file_data = fs::read(file).with_context(|| anyhow!("[ERR] failed to open file: {file}"))?;
-    let digest = Sha256::digest(file_data);
+    // Open file
+    let mut file_handle =
+        File::open(file).with_context(|| anyhow!("[ERR] failed to open file: {file}"))?;
 
-    Ok(format!("{digest:x}"))
+    // Instantiate Sha256 hasher & stream from file to hasher
+    let mut hasher = Sha256::new();
+    io::copy(&mut file_handle, &mut hasher)
+        .with_context(|| anyhow!("[ERR] failed to read file: {file}"))?;
+
+    Ok(format!("{:x}", hasher.finalize()))
 }
 
 /// compute_sha512 computes the sha512 hash of a given file
 fn compute_sha512(file: &str) -> Result<String> {
-    let file_data = fs::read(file).with_context(|| anyhow!("[ERR] failed to open file: {file}"))?;
-    let digest = Sha512::digest(file_data);
+    // Open file
+    let mut file_handle =
+        File::open(file).with_context(|| anyhow!("[ERR] failed to open file: {file}"))?;
 
-    Ok(format!("{digest:x}"))
+    // Instantiate Sha512 hasher && stream file to hasher
+    let mut hasher = Sha512::new();
+    io::copy(&mut file_handle, &mut hasher)
+        .with_context(|| anyhow!("[ERR] failed to read file: {file}"))?;
+
+    Ok(format!("{:x}", hasher.finalize()))
 }
 
 /// compute_blake2s computes the blake2s256 hash of a given file
 fn compute_blake2s(file: &str) -> Result<String> {
-    let file_data = fs::read(file).with_context(|| anyhow!("[ERR] failed to open file: {file}"))?;
-    let digest = Blake2s256::digest(file_data);
+    // Open file
+    let mut file_handle =
+        File::open(file).with_context(|| anyhow!("[ERR] failed to open file: {file}"))?;
 
-    Ok(format!("{digest:x}"))
+    // Instantiate Blake2s256 hasher && stream file to hasher
+    let mut hasher = Blake2s256::new();
+    io::copy(&mut file_handle, &mut hasher)
+        .with_context(|| anyhow!("[ERR] failed to read file: {file}"))?;
+
+    Ok(format!("{:x}", hasher.finalize()))
 }
 
 /// compute_blake2b computes the blake2b512 hash of a given file
 fn compute_blake2b(file: &str) -> Result<String> {
-    let file_data = fs::read(file).with_context(|| anyhow!("[ERR] failed to open file: {file}"))?;
-    let digest = Blake2b512::digest(file_data);
+    // Open file
+    let mut file_handle =
+        File::open(file).with_context(|| anyhow!("[ERR] failed to open file: {file}"))?;
 
-    Ok(format!("{digest:x}"))
+    // Instantiate Blake2b512 hasher && stream file to hasher
+    let mut hasher = Blake2b512::new();
+    io::copy(&mut file_handle, &mut hasher)
+        .with_context(|| anyhow!("[ERR] failed to read file: {file}"))?;
+
+    Ok(format!("{:x}", hasher.finalize()))
 }
 
 /// compute_blake3 computes the blake3 hash of a given file
 fn compute_blake3(file: &str) -> Result<String> {
-    let file_data = fs::read(file).with_context(|| anyhow!("[ERR] failed to open file: {file}"))?;
-    let mut hasher = Hasher::new();
-    hasher.update(file_data.as_slice());
-    let digest = hasher.finalize();
+    // Open file
+    let mut file_handle =
+        File::open(file).with_context(|| anyhow!("[ERR] failed to open file: {file}"))?;
 
-    Ok(format!("{digest}"))
+    // Instantiate Blake3 hasher && stream file to hasher
+    let mut hasher = blake3::Hasher::new();
+    io::copy(&mut file_handle, &mut hasher)
+        .with_context(|| anyhow!("[ERR] failed to read file: {file}"))?;
+
+    Ok(format!("{}", hasher.finalize().to_hex()))
 }
