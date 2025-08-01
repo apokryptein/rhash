@@ -35,8 +35,6 @@ rhash hash -t blake2s file1.txt file2.txt file3.txt
 
 Verifying Checksums
 
-- NOTE: verification functionality is still under development
-
 ```bash
 # Verify all files in checksum file
 rhash verify -c checksums.txt
